@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { VscHeart, VscHeartFilled } from "react-icons/vsc"
 import { IconHoverEffect } from "./IconHoverEffect"
 import { api } from "~/utils/api"
+import { LoadingAnimation } from "./LoadingAnimation"
 
 
 
@@ -26,7 +27,7 @@ type InfiniteTweetListProps = {
   tweets?: Tweet[]
 }
 export function InfiniteTweetList({ tweets, isError, isLoading, fetchNextPage, hasNextPage = false }: InfiniteTweetListProps) {
-  if (isLoading) return <h1>Loading...</h1>
+  if (isLoading) return <LoadingAnimation />
   if (isError) return <h1>Error</h1>
   if (tweets == null || tweets.length === 0) return <h2 className="my-4 text-center text-2xl text-gray-500">No tweets</h2>
 
@@ -36,7 +37,7 @@ export function InfiniteTweetList({ tweets, isError, isLoading, fetchNextPage, h
       dataLength={tweets.length}
       next={fetchNextPage}
       hasMore={hasNextPage}
-      loader={"Loading..."}>
+      loader={<LoadingAnimation />}>
         {tweets.map(tweet => {
           return <TweetCard key={tweet.id} {...tweet} />
         })}
@@ -77,6 +78,9 @@ const toggleLike = api.tweet.toggleLike.useMutation({ onSuccess: ({
       }
     }
     trpcUtils.tweet.infiniteFeed.setInfiniteData({}, updateData)
+    trpcUtils.tweet.infiniteFeed.setInfiniteData({ onlyFollowing: true }, updateData)
+    trpcUtils.tweet.infiniteProfileFeed.setInfiniteData({ userId: user.id}, updateData)
+
 }})
 
 function handleLikeClick() {
